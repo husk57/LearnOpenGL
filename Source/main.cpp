@@ -187,6 +187,19 @@ int main() {
     
     glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
     
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    
     Shader mainShader("./Source/vertex.vert", "./Source/fragment.frag");
     Shader lightShader("./Source/vertex.vert", "./Source/lightFragment.frag");
     Texture diffuseMapTexture("./Textures/containerDiffMap.png");
@@ -197,8 +210,14 @@ int main() {
     mainShader.setUniformInt("material.specular", 1);
     mainShader.setUniformInt("material.emission", 2);
     
-    glm::vec3 cubePos = glm::vec3(0.0f);
     ImVec4 light_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    float linearAtt = 0.09f;
+    float quadraticAtt = 0.032f;
+    float xL = -0.374f;
+    float yL = -0.52f;
+    float zL = -1.0f;
+    float cutOff = 12.5f;
+    float outerCutOff = 17.5;
     
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -206,8 +225,16 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::Text("Camera Position: %f, %f, %f", camera.position.x, camera.position.y, camera.position.z);
+        ImGui::Text("Camera Look Vector: %f, %f, %f", camera.front.x, camera.front.y, camera.front.z);
         ImGui::Text("FPS: %d", (int)(1.0/deltaTime));
         ImGui::ColorEdit3("Light Color", (float*)&light_color);
+        ImGui::SliderFloat("Linear Attenuation", &linearAtt, 0.0f, 0.1f);
+        ImGui::SliderFloat("Quadratic Attenuation", &quadraticAtt, 0.0f, 0.1f);
+        ImGui::SliderFloat("Cut off", &cutOff, 0.0f, 180.0f);
+        ImGui::SliderFloat("Outer off", &outerCutOff, 0.0f, 180.0f);
+        ImGui::SliderFloat("Light X Dir", &xL, -1.0f, 1.0f);
+        ImGui::SliderFloat("Light Y Dir", &yL, -1.0f, 1.0f);
+        ImGui::SliderFloat("Light Z Dir", &zL, -1.0f, 1.0f);
         
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -224,11 +251,18 @@ int main() {
         
         mainShader.use();
         mainShader.setUniformVec3("cameraPosition", camera.position);
-        mainShader.setUniformVec3("light.position", lightPos);
         
         mainShader.setUniformVec3("light.ambient", glm::vec3(0.2));
-        mainShader.setUniformVec3("light.diffuse",  glm::vec3(light_color.x, light_color.y, light_color.z));
+        mainShader.setUniformVec3("light.diffuse",  glm::vec3(light_color.x, light_color.y, light_color.z)*glm::vec3(light_color.x, light_color.y, light_color.z));
         mainShader.setUniformVec3("light.specular", glm::vec3(1.0));
+        mainShader.setUniformVec3("light.direction", glm::vec3(xL, yL, zL));
+        mainShader.setUniformVec3("light.position", lightPos);
+        mainShader.setUniformFloat("light.constant", 1.0f);
+        mainShader.setUniformFloat("light.linear", linearAtt);
+        mainShader.setUniformFloat("light.quadratic", quadraticAtt);
+        mainShader.setUniformInt("light.lightType", 2);
+        mainShader.setUniformFloat("light.cutOff", glm::cos(glm::radians(cutOff)));
+        mainShader.setUniformFloat("light.outerCutOff", glm::cos(glm::radians(outerCutOff)));
         
         mainShader.setUniformFloat("material.shininess", 64.0f);
         mainShader.setUniformFloat("time", (float)glfwGetTime());
@@ -244,12 +278,16 @@ int main() {
         
         mainShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
         mainShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        modelMatrix = glm::translate(modelMatrix, cubePos);
-        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(modelMatrix));
-
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            modelMatrix = glm::translate(modelMatrix, cubePositions[i]);
+            modelMatrix = glm::rotate(modelMatrix, 20.0f*(float)(i), glm::vec3(1.0f, 0.3f, 0.5f));
+            
+            mainShader.setUniformMat4("modelMatrix", glm::value_ptr(modelMatrix));
+            glBindVertexArray(cubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         
         lightShader.use();
         lightShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
