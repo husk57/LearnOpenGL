@@ -58,7 +58,6 @@
 		42643F69264F1B4100AB698E /* csMeme.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = csMeme.jpg; sourceTree = "<group>"; };
 		42643F6B264F63B400AB698E /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; path = glm; sourceTree = "<group>"; };
 		42643F6C265051E900AB698E /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
-		42643F6D265186F900AB698E /* lightFragment.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = lightFragment.frag; sourceTree = "<group>"; };
 		42643F7626518FAA00AB698E /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
 		42643F82265342EE00AB698E /* containerDiffMap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = containerDiffMap.png; sourceTree = "<group>"; };
 		42643F832653450700AB698E /* containerSpecMap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = containerSpecMap.png; sourceTree = "<group>"; };
@@ -132,7 +131,6 @@
 				42643F1D2648649F00AB698E /* main.cpp */,
 				42643F62264DDB7D00AB698E /* vertex.vert */,
 				42643F63264DDB8A00AB698E /* fragment.frag */,
-				42643F6D265186F900AB698E /* lightFragment.frag */,
 				42643F66264F15C500AB698E /* stb_image.cpp */,
 			);
 			path = Source;

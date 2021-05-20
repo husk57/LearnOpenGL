@@ -200,8 +200,13 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
     
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
     Shader mainShader("./Source/vertex.vert", "./Source/fragment.frag");
-    Shader lightShader("./Source/vertex.vert", "./Source/lightFragment.frag");
     Texture diffuseMapTexture("./Textures/containerDiffMap.png");
     Texture specularMapTexture("./Textures/containerSpecMap.png");
     Texture emissionMapTexture("./Textures/matrix.jpeg");
@@ -209,6 +214,7 @@ int main() {
     mainShader.setUniformInt("material.diffuse", 0);
     mainShader.setUniformInt("material.specular", 1);
     mainShader.setUniformInt("material.emission", 2);
+    mainShader.setUniformFloat("material.shininess", 64.0f);
     
     ImVec4 light_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     float linearAtt = 0.09f;
@@ -252,19 +258,32 @@ int main() {
         mainShader.use();
         mainShader.setUniformVec3("cameraPosition", camera.position);
         
-        mainShader.setUniformVec3("light.ambient", glm::vec3(0.2));
-        mainShader.setUniformVec3("light.diffuse",  glm::vec3(light_color.x, light_color.y, light_color.z)*glm::vec3(light_color.x, light_color.y, light_color.z));
-        mainShader.setUniformVec3("light.specular", glm::vec3(1.0));
-        mainShader.setUniformVec3("light.direction", glm::vec3(xL, yL, zL));
-        mainShader.setUniformVec3("light.position", lightPos);
-        mainShader.setUniformFloat("light.constant", 1.0f);
-        mainShader.setUniformFloat("light.linear", linearAtt);
-        mainShader.setUniformFloat("light.quadratic", quadraticAtt);
-        mainShader.setUniformInt("light.lightType", 2);
-        mainShader.setUniformFloat("light.cutOff", glm::cos(glm::radians(cutOff)));
-        mainShader.setUniformFloat("light.outerCutOff", glm::cos(glm::radians(outerCutOff)));
+        mainShader.setUniformVec3("dirLight.ambient", glm::vec3(0.2));
+        mainShader.setUniformVec3("dirLight.diffuse",  glm::vec3(1.0));
+        mainShader.setUniformVec3("dirLight.specular", glm::vec3(1.0));
+        mainShader.setUniformVec3("dirLight.direction", glm::vec3(xL, yL, zL));
         
-        mainShader.setUniformFloat("material.shininess", 64.0f);
+        for (int pointLight = 0; pointLight<4; pointLight++) {
+            mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].position", pointLightPositions[pointLight]);
+            mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].constant", 1.0f);
+            mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].linear", linearAtt);
+            mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].quadratic", quadraticAtt);
+            mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].ambient", glm::vec3(0.2));
+            mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].diffuse", glm::vec3(1.0));
+            mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].specular", glm::vec3(1.0));
+        }
+        
+        mainShader.setUniformVec3("spotLight.position", camera.position);
+        mainShader.setUniformVec3("spotLight.direction", camera.front);
+        mainShader.setUniformVec3("spotLight.ambient", glm::vec3(1.0));
+        mainShader.setUniformVec3("spotLight.diffuse", glm::vec3(1.0));
+        mainShader.setUniformVec3("spotLight.specular", glm::vec3(1.0));
+        mainShader.setUniformFloat("spotLight.constant", 1.0f);
+        mainShader.setUniformFloat("spotLight.linear", linearAtt);
+        mainShader.setUniformFloat("spotLight.quadratic", quadraticAtt);
+        mainShader.setUniformFloat("spotLight.cutOff", cutOff);
+        mainShader.setUniformFloat("spotLight.outerCutOff", outerCutOff);
+        
         mainShader.setUniformFloat("time", (float)glfwGetTime());
         
         glActiveTexture(GL_TEXTURE0);
@@ -288,17 +307,6 @@ int main() {
             glBindVertexArray(cubeVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        
-        lightShader.use();
-        lightShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
-        lightShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
-        
-        glm::mat4 lightModelMatrix = glm::mat4(1.0f);
-        lightModelMatrix = glm::translate(lightModelMatrix, lightPos);
-        lightModelMatrix = glm::scale(lightModelMatrix, glm::vec3(0.2f));
-        lightShader.setUniformMat4("modelMatrix", glm::value_ptr(lightModelMatrix));
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
                 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
