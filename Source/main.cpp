@@ -183,9 +183,6 @@ int main() {
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
     
     glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -219,11 +216,8 @@ int main() {
     ImVec4 light_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     float linearAtt = 0.09f;
     float quadraticAtt = 0.032f;
-    float xL = -0.374f;
-    float yL = -0.52f;
-    float zL = -1.0f;
     float cutOff = 12.5f;
-    float outerCutOff = 17.5;
+    float outerCutOff = 13.5f;
     
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -238,9 +232,6 @@ int main() {
         ImGui::SliderFloat("Quadratic Attenuation", &quadraticAtt, 0.0f, 0.1f);
         ImGui::SliderFloat("Cut off", &cutOff, 0.0f, 180.0f);
         ImGui::SliderFloat("Outer off", &outerCutOff, 0.0f, 180.0f);
-        ImGui::SliderFloat("Light X Dir", &xL, -1.0f, 1.0f);
-        ImGui::SliderFloat("Light Y Dir", &yL, -1.0f, 1.0f);
-        ImGui::SliderFloat("Light Z Dir", &zL, -1.0f, 1.0f);
         
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -261,7 +252,7 @@ int main() {
         mainShader.setUniformVec3("dirLight.ambient", glm::vec3(0.2));
         mainShader.setUniformVec3("dirLight.diffuse",  glm::vec3(1.0));
         mainShader.setUniformVec3("dirLight.specular", glm::vec3(1.0));
-        mainShader.setUniformVec3("dirLight.direction", glm::vec3(xL, yL, zL));
+        mainShader.setUniformVec3("dirLight.direction", glm::vec3(-0.374f, -0.52f, -1.0f));
         
         for (int pointLight = 0; pointLight<4; pointLight++) {
             mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].position", pointLightPositions[pointLight]);
@@ -281,8 +272,8 @@ int main() {
         mainShader.setUniformFloat("spotLight.constant", 1.0f);
         mainShader.setUniformFloat("spotLight.linear", linearAtt);
         mainShader.setUniformFloat("spotLight.quadratic", quadraticAtt);
-        mainShader.setUniformFloat("spotLight.cutOff", cutOff);
-        mainShader.setUniformFloat("spotLight.outerCutOff", outerCutOff);
+        mainShader.setUniformFloat("spotLight.cutOff", glm::cos(glm::radians(cutOff)));
+        mainShader.setUniformFloat("spotLight.outerCutOff", glm::cos(glm::radians(outerCutOff)));
         
         mainShader.setUniformFloat("time", (float)glfwGetTime());
         
