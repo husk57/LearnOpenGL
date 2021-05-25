@@ -8,11 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		4256B2CA265CA73D00204865 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256B2C9265CA73D00204865 /* libglfw3.a */; };
+		4256B2D6265CB5C100204865 /* libassimpd.5.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256B2D5265CB5C100204865 /* libassimpd.5.0.0.dylib */; };
 		42643F1E2648649F00AB698E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42643F1D2648649F00AB698E /* main.cpp */; };
 		42643F302648667100AB698E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F2F2648667100AB698E /* AppKit.framework */; };
 		42643F342648667B00AB698E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F332648667B00AB698E /* CoreFoundation.framework */; };
 		42643F362648667F00AB698E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F352648667F00AB698E /* Foundation.framework */; };
-		42643F382648668400AB698E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F372648668400AB698E /* CoreGraphics.framework */; };
+		42643F382648668400AB698E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F372648668400AB698E /* CoreGraphics.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		42643F3926488EE100AB698E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F312648667500AB698E /* IOKit.framework */; };
 		42643F67264F15C500AB698E /* stb_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42643F66264F15C500AB698E /* stb_image.cpp */; };
 		42643F7726518FAA00AB698E /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 42643F7626518FAA00AB698E /* glad.c */; };
@@ -39,6 +40,8 @@
 
 /* Begin PBXFileReference section */
 		4256B2C9265CA73D00204865 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libglfw3.a; sourceTree = "<group>"; };
+		4256B2D5265CB5C100204865 /* libassimpd.5.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libassimpd.5.0.0.dylib; sourceTree = "<group>"; };
+		4256B2D7265CB61200204865 /* assimp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assimp; sourceTree = "<group>"; };
 		42643F1A2648649F00AB698E /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		42643F1D2648649F00AB698E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		42643F292648653500AB698E /* GLFW */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GLFW; sourceTree = "<group>"; };
@@ -85,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4256B2D6265CB5C100204865 /* libassimpd.5.0.0.dylib in Frameworks */,
 				42643F3926488EE100AB698E /* IOKit.framework in Frameworks */,
 				42643F382648668400AB698E /* CoreGraphics.framework in Frameworks */,
 				42643F362648667F00AB698E /* Foundation.framework in Frameworks */,
@@ -139,6 +143,7 @@
 		42643F25264864AC00AB698E /* Include */ = {
 			isa = PBXGroup;
 			children = (
+				4256B2D7265CB61200204865 /* assimp */,
 				42643FA0265479FE00AB698E /* imconfig.h */,
 				42643FA4265479FF00AB698E /* imgui_impl_glfw.h */,
 				42643FA1265479FE00AB698E /* imgui_impl_opengl3.h */,
@@ -163,6 +168,7 @@
 		42643F26264864B100AB698E /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4256B2D5265CB5C100204865 /* libassimpd.5.0.0.dylib */,
 				4256B2C9265CA73D00204865 /* libglfw3.a */,
 			);
 			path = Libraries;
@@ -381,10 +387,7 @@
 				DYLIB_INSTALL_NAME_BASE = "";
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Include";
 				LD_DYLIB_INSTALL_NAME = "";
-				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/Libraries",
-					/usr/local/Cellar/assimp/5.0.1/lib,
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Libraries";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -396,10 +399,7 @@
 				DYLIB_INSTALL_NAME_BASE = "";
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Include";
 				LD_DYLIB_INSTALL_NAME = "";
-				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/Libraries",
-					/usr/local/Cellar/assimp/5.0.1/lib,
-				);
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Libraries";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
