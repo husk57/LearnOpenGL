@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4256B2CA265CA73D00204865 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4256B2C9265CA73D00204865 /* libglfw3.a */; };
 		42643F1E2648649F00AB698E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42643F1D2648649F00AB698E /* main.cpp */; };
-		42643F282648651000AB698E /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F272648651000AB698E /* libglfw3.a */; };
 		42643F302648667100AB698E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F2F2648667100AB698E /* AppKit.framework */; };
 		42643F342648667B00AB698E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F332648667B00AB698E /* CoreFoundation.framework */; };
 		42643F362648667F00AB698E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42643F352648667F00AB698E /* Foundation.framework */; };
@@ -38,9 +38,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4256B2C9265CA73D00204865 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libglfw3.a; sourceTree = "<group>"; };
 		42643F1A2648649F00AB698E /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		42643F1D2648649F00AB698E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		42643F272648651000AB698E /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libglfw3.a; sourceTree = "<group>"; };
 		42643F292648653500AB698E /* GLFW */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GLFW; sourceTree = "<group>"; };
 		42643F2A2648654D00AB698E /* glad */ = {isa = PBXFileReference; lastKnownFileType = folder; path = glad; sourceTree = "<group>"; };
 		42643F2B2648655300AB698E /* KHR */ = {isa = PBXFileReference; lastKnownFileType = folder; path = KHR; sourceTree = "<group>"; };
@@ -90,7 +90,7 @@
 				42643F362648667F00AB698E /* Foundation.framework in Frameworks */,
 				42643F342648667B00AB698E /* CoreFoundation.framework in Frameworks */,
 				42643F302648667100AB698E /* AppKit.framework in Frameworks */,
-				42643F282648651000AB698E /* libglfw3.a in Frameworks */,
+				4256B2CA265CA73D00204865 /* libglfw3.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,7 +163,7 @@
 		42643F26264864B100AB698E /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				42643F272648651000AB698E /* libglfw3.a */,
+				4256B2C9265CA73D00204865 /* libglfw3.a */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -378,8 +378,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DYLIB_INSTALL_NAME_BASE = "";
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Include";
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Libraries";
+				LD_DYLIB_INSTALL_NAME = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Libraries",
+					/usr/local/Cellar/assimp/5.0.1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -388,8 +393,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DYLIB_INSTALL_NAME_BASE = "";
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Include";
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/Libraries";
+				LD_DYLIB_INSTALL_NAME = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Libraries",
+					/usr/local/Cellar/assimp/5.0.1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
