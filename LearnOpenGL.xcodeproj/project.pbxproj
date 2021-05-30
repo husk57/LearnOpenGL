@@ -55,7 +55,6 @@
 		42643F60264DD83B00AB698E /* shader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shader.hpp; sourceTree = "<group>"; };
 		42643F62264DDB7D00AB698E /* vertex.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = vertex.vert; sourceTree = "<group>"; };
 		42643F63264DDB8A00AB698E /* fragment.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = fragment.frag; sourceTree = "<group>"; };
-		42643F64264F144000AB698E /* texture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = texture.hpp; sourceTree = "<group>"; };
 		42643F65264F158400AB698E /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		42643F66264F15C500AB698E /* stb_image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stb_image.cpp; sourceTree = "<group>"; };
 		42643F69264F1B4100AB698E /* csMeme.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = csMeme.jpg; sourceTree = "<group>"; };
@@ -80,6 +79,11 @@
 		42643FA3265479FE00AB698E /* imstb_rectpack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
 		42643FA4265479FF00AB698E /* imgui_impl_glfw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_glfw.h; sourceTree = "<group>"; };
 		42643FA5265479FF00AB698E /* imstb_textedit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
+		428180A0265DC842009EAD32 /* texture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = texture.hpp; sourceTree = "<group>"; };
+		428180A226642233009EAD32 /* mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mesh.hpp; sourceTree = "<group>"; };
+		428180A3266428B6009EAD32 /* model.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = model.hpp; sourceTree = "<group>"; };
+		428180A526643317009EAD32 /* backpack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = backpack; sourceTree = "<group>"; };
+		428180A626644E78009EAD32 /* CoderHusk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoderHusk; sourceTree = "<group>"; };
 		429DE3922655B8F100291935 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -104,6 +108,7 @@
 		42643F112648649F00AB698E = {
 			isa = PBXGroup;
 			children = (
+				428180A426642F0A009EAD32 /* Meshes */,
 				429DE3922655B8F100291935 /* LICENSE */,
 				42643F26264864B100AB698E /* Libraries */,
 				42643F25264864AC00AB698E /* Include */,
@@ -143,6 +148,7 @@
 		42643F25264864AC00AB698E /* Include */ = {
 			isa = PBXGroup;
 			children = (
+				428180A0265DC842009EAD32 /* texture.hpp */,
 				4256B2D7265CB61200204865 /* assimp */,
 				42643FA0265479FE00AB698E /* imconfig.h */,
 				42643FA4265479FF00AB698E /* imgui_impl_glfw.h */,
@@ -158,9 +164,10 @@
 				42643F2B2648655300AB698E /* KHR */,
 				42643F2A2648654D00AB698E /* glad */,
 				42643F292648653500AB698E /* GLFW */,
-				42643F64264F144000AB698E /* texture.hpp */,
 				42643F65264F158400AB698E /* stb_image.h */,
 				42643F6C265051E900AB698E /* camera.hpp */,
+				428180A226642233009EAD32 /* mesh.hpp */,
+				428180A3266428B6009EAD32 /* model.hpp */,
 			);
 			path = Include;
 			sourceTree = "<group>";
@@ -195,6 +202,15 @@
 				42643F69264F1B4100AB698E /* csMeme.jpg */,
 			);
 			path = Textures;
+			sourceTree = "<group>";
+		};
+		428180A426642F0A009EAD32 /* Meshes */ = {
+			isa = PBXGroup;
+			children = (
+				428180A626644E78009EAD32 /* CoderHusk */,
+				428180A526643317009EAD32 /* backpack */,
+			);
+			path = Meshes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
