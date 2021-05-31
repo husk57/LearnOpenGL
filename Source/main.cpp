@@ -133,7 +133,9 @@ int main() {
     float cutOff = 12.5f;
     float outerCutOff = 13.5f;
     
-    Model backpack("./Meshes/CoderHusk/robloxOriginal.obj");
+    Model character("./Meshes/CoderHusk/robloxOriginal.obj", false);
+    Model backpack("./Meshes/backpack/backpack.obj", true);
+    
     
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -177,23 +179,24 @@ int main() {
             mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].linear", linearAtt);
             mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].quadratic", quadraticAtt);
         }
-        /*
+        
         mainShader.setUniformVec3("spotLight.position", camera.position);
         mainShader.setUniformVec3("spotLight.direction", camera.front);
-        mainShader.setUniformVec3("spotLight.ambient", glm::vec3(1.0));
-        mainShader.setUniformVec3("spotLight.diffuse", glm::vec3(1.0));
-        mainShader.setUniformVec3("spotLight.specular", glm::vec3(1.0));
-        mainShader.setUniformFloat("spotLight.constant", 1.0f);
         mainShader.setUniformFloat("spotLight.linear", linearAtt);
         mainShader.setUniformFloat("spotLight.quadratic", quadraticAtt);
         mainShader.setUniformFloat("spotLight.cutOff", glm::cos(glm::radians(cutOff)));
         mainShader.setUniformFloat("spotLight.outerCutOff", glm::cos(glm::radians(outerCutOff)));
         
         mainShader.setUniformFloat("time", (float)glfwGetTime());
-        */
         
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        character.Draw(mainShader);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         backpack.Draw(mainShader);

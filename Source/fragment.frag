@@ -23,6 +23,16 @@ struct PointLight {
 };
 uniform PointLight pointLights[nrPointLights];
 
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    float linear;
+    float quadratic;
+    float cutOff;
+    float outerCutOff;
+};
+uniform SpotLight spotLight;
+
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
@@ -39,16 +49,35 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     return (ambient + diffuse + specular);
 }
 
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+    vec3 lightDir = normalize(light.position - fragPos);
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0); //32 is pow factor
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (1.0 + light.linear * distance + light.quadratic * (distance * distance));
+    vec3 ambient = vec3(texture(texture_diffuse1, TexCoord)) * 0.2; //0.2 is ambient factor
+    vec3 diffuse = diff * vec3(texture(texture_diffuse1, TexCoord));
+    vec3 specular = spec * vec3(texture(texture_specular1, TexCoord));
+    
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = (light.cutOff - light.outerCutOff);
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    ambient *= attenuation * intensity;
+    diffuse  *= attenuation * intensity;
+    specular *= attenuation * intensity;
+    return (ambient + diffuse + specular);
+}
+
 
 void main()
 {
     
     vec3 col = vec3(0.0);
     vec3 viewDir = normalize(cameraPosition - fPosition);
-
     for(int i = 0; i < nrPointLights; i++) {
         col += CalcPointLight(pointLights[i], fNormal, fPosition, viewDir);
     }
-    
+    col += CalcSpotLight(spotLight, fNormal, fPosition, viewDir);
     FragColor = vec4(col, 1.0);
 }

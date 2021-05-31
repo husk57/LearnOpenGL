@@ -9,17 +9,19 @@
 #include <assimp/postprocess.h>
 #include <shader.hpp>
 
-unsigned int TextureFromFile(const char *path, const std::string &directory);
-
+unsigned int TextureFromFile(const char *path, const std::string &directory, bool state);
 class Model
 {
     std::vector<Mesh> meshes;
     std::vector<Tex> textures_loaded;
     std::string directory;
+    bool isFlip;
     public:
-        Model(char *path)
+        Model(const char *path, bool state)
         {
+            this->isFlip = state;
             loadModel(path);
+            
         }
         
         void Draw(Shader &shader)
@@ -29,7 +31,6 @@ class Model
             }
         }
     private:
-
         void loadModel(std::string path) {
             Assimp::Importer importer;
             const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -123,7 +124,7 @@ class Model
                         if(!skip)
                         {
                             Tex texture;
-                            texture.id = TextureFromFile(str.C_Str(), this->directory);
+                            texture.id = TextureFromFile(str.C_Str(), this->directory, this->isFlip);
                             texture.type = typeName;
                             texture.path = str.C_Str();
                             textures.push_back(texture);
@@ -134,7 +135,7 @@ class Model
                 }
 };
 
-unsigned int TextureFromFile(const char *path, const std::string &directory)
+unsigned int TextureFromFile(const char *path, const std::string &directory, bool state)
 {
     std::string filename = std::string(path);
     filename = directory + '/' + filename;
@@ -143,7 +144,8 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    stbi_set_flip_vertically_on_load(false);
+    stbi_set_flip_vertically_on_load(state);
+    std::cout << state << ", " << filename << std::endl;
     unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
