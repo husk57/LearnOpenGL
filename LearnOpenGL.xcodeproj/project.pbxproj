@@ -57,13 +57,9 @@
 		42643F63264DDB8A00AB698E /* fragment.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = fragment.frag; sourceTree = "<group>"; };
 		42643F65264F158400AB698E /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		42643F66264F15C500AB698E /* stb_image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stb_image.cpp; sourceTree = "<group>"; };
-		42643F69264F1B4100AB698E /* csMeme.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = csMeme.jpg; sourceTree = "<group>"; };
 		42643F6B264F63B400AB698E /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; path = glm; sourceTree = "<group>"; };
 		42643F6C265051E900AB698E /* camera.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = camera.hpp; sourceTree = "<group>"; };
 		42643F7626518FAA00AB698E /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
-		42643F82265342EE00AB698E /* containerDiffMap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = containerDiffMap.png; sourceTree = "<group>"; };
-		42643F832653450700AB698E /* containerSpecMap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = containerSpecMap.png; sourceTree = "<group>"; };
-		42643F8426534B0C00AB698E /* matrix.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = matrix.jpeg; sourceTree = "<group>"; };
 		42643F902654796900AB698E /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		42643F922654797600AB698E /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
 		42643F942654798400AB698E /* imgui_impl_opengl3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_opengl3.cpp; sourceTree = "<group>"; };
@@ -79,11 +75,13 @@
 		42643FA3265479FE00AB698E /* imstb_rectpack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
 		42643FA4265479FF00AB698E /* imgui_impl_glfw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_glfw.h; sourceTree = "<group>"; };
 		42643FA5265479FF00AB698E /* imstb_textedit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
-		428180A0265DC842009EAD32 /* texture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = texture.hpp; sourceTree = "<group>"; };
 		428180A226642233009EAD32 /* mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mesh.hpp; sourceTree = "<group>"; };
 		428180A3266428B6009EAD32 /* model.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = model.hpp; sourceTree = "<group>"; };
 		428180A526643317009EAD32 /* backpack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = backpack; sourceTree = "<group>"; };
 		428180A626644E78009EAD32 /* CoderHusk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CoderHusk; sourceTree = "<group>"; };
+		428180C026671350009EAD32 /* stanford-bunny-obj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "stanford-bunny-obj"; sourceTree = "<group>"; };
+		428180C3266AE107009EAD32 /* Plane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Plane; sourceTree = "<group>"; };
+		428180C4266AE3EA009EAD32 /* Tree */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tree; sourceTree = "<group>"; };
 		429DE3922655B8F100291935 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,7 +110,6 @@
 				429DE3922655B8F100291935 /* LICENSE */,
 				42643F26264864B100AB698E /* Libraries */,
 				42643F25264864AC00AB698E /* Include */,
-				42643F68264F171A00AB698E /* Textures */,
 				42643F1C2648649F00AB698E /* Source */,
 				42643F1B2648649F00AB698E /* Products */,
 				42643F2E2648667100AB698E /* Frameworks */,
@@ -148,7 +145,6 @@
 		42643F25264864AC00AB698E /* Include */ = {
 			isa = PBXGroup;
 			children = (
-				428180A0265DC842009EAD32 /* texture.hpp */,
 				4256B2D7265CB61200204865 /* assimp */,
 				42643FA0265479FE00AB698E /* imconfig.h */,
 				42643FA4265479FF00AB698E /* imgui_impl_glfw.h */,
@@ -193,20 +189,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		42643F68264F171A00AB698E /* Textures */ = {
-			isa = PBXGroup;
-			children = (
-				42643F8426534B0C00AB698E /* matrix.jpeg */,
-				42643F832653450700AB698E /* containerSpecMap.png */,
-				42643F82265342EE00AB698E /* containerDiffMap.png */,
-				42643F69264F1B4100AB698E /* csMeme.jpg */,
-			);
-			path = Textures;
-			sourceTree = "<group>";
-		};
 		428180A426642F0A009EAD32 /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
+				428180C4266AE3EA009EAD32 /* Tree */,
+				428180C3266AE107009EAD32 /* Plane */,
+				428180C026671350009EAD32 /* stanford-bunny-obj */,
 				428180A626644E78009EAD32 /* CoderHusk */,
 				428180A526643317009EAD32 /* backpack */,
 			);
@@ -392,6 +380,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
 			name = Release;

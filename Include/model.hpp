@@ -1,13 +1,12 @@
-#ifndef model_h
-#define model_h
+#ifndef model_hpp
+#define model_hpp
 
-#include <glad/glad.h>
 #include <vector>
 #include <mesh.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <shader.hpp>
+#include <stb_image.h>
 
 unsigned int TextureFromFile(const char *path, const std::string &directory, bool state);
 class Model
@@ -97,9 +96,9 @@ class Model
         if(mesh->mMaterialIndex >= 0) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             std::vector<Tex> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+            textures.insert(textures.end(), std::make_move_iterator(diffuseMaps.begin()), std::make_move_iterator(diffuseMaps.end()));
             std::vector<Tex> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            textures.insert(textures.end(), std::make_move_iterator(specularMaps.begin()), std::make_move_iterator(specularMaps.end()));
         }
         //
         return Mesh(vertices, textures, indices);
@@ -154,7 +153,7 @@ unsigned int TextureFromFile(const char *path, const std::string &directory, boo
             format = GL_RED;
         } else if (nrComponents == 3) {
             format = GL_RGB;
-        } else if (nrComponents == 4) {
+        } else {
             format = GL_RGBA;
         }
         glBindTexture(GL_TEXTURE_2D, textureID);

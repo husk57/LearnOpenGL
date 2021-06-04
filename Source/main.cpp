@@ -2,8 +2,6 @@
 #include <math.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <shader.hpp>
-#include <texture.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,10 +9,6 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <mesh.hpp>
 #include <model.hpp>
 
 int windowWidth = 800, windowHeight = 600;
@@ -108,6 +102,8 @@ int main() {
     }
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -124,10 +120,9 @@ int main() {
         glm::vec3( 0.0f,  0.0f, -3.0f)
     };
     
-    Shader mainShader("./Source/vertex.vert", "./Source/fragment.frag");
-    mainShader.use();
     
-    ImVec4 light_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    Shader mainShader("./Source/vertex.vert", "./Source/fragment.frag");
+    
     float linearAtt = 0.09f;
     float quadraticAtt = 0.032f;
     float cutOff = 12.5f;
@@ -135,7 +130,9 @@ int main() {
     
     Model character("./Meshes/CoderHusk/robloxOriginal.obj", false);
     Model backpack("./Meshes/backpack/backpack.obj", true);
-    
+    Model bunny("./Meshes/stanford-bunny-obj/stanford-bunny.obj", true);
+    Model plane("./Meshes/Plane/plane.obj", true);
+    Model tree("./Meshes/Tree/tree.obj", false);
     
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -145,7 +142,6 @@ int main() {
         ImGui::Text("Camera Position: %f, %f, %f", camera.position.x, camera.position.y, camera.position.z);
         ImGui::Text("Camera Look Vector: %f, %f, %f", camera.front.x, camera.front.y, camera.front.z);
         ImGui::Text("FPS: %d", (int)(1.0/deltaTime));
-        ImGui::ColorEdit3("Light Color", (float*)&light_color);
         ImGui::SliderFloat("Linear Attenuation", &linearAtt, 0.0f, 0.1f);
         ImGui::SliderFloat("Quadratic Attenuation", &quadraticAtt, 0.0f, 0.1f);
         ImGui::SliderFloat("Cut off", &cutOff, 0.0f, 180.0f);
@@ -156,9 +152,10 @@ int main() {
         lastFrame = currentFrame;
         processInput(window);
         
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+        mainShader.use();
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         viewMatrix = camera.GetViewMatrix();
         glm::mat4 perspectiveMatrix = glm::mat4(1.0f);
@@ -166,14 +163,8 @@ int main() {
         mainShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
         mainShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
         
-        mainShader.use();
         mainShader.setUniformVec3("cameraPosition", camera.position);
-        /*
-        mainShader.setUniformVec3("dirLight.ambient", glm::vec3(0.2));
-        mainShader.setUniformVec3("dirLight.diffuse",  glm::vec3(1.0));
-        mainShader.setUniformVec3("dirLight.specular", glm::vec3(1.0));
-        mainShader.setUniformVec3("dirLight.direction", glm::vec3(-0.374f, -0.52f, -1.0f));
-        */
+        
         for (int pointLight = 0; pointLight<4; pointLight++) {
             mainShader.setUniformVec3("pointLights[" + std::to_string(pointLight) + "].position", pointLightPositions[pointLight]);
             mainShader.setUniformFloat("pointLights[" + std::to_string(pointLight) + "].linear", linearAtt);
@@ -195,11 +186,37 @@ int main() {
         model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         character.Draw(mainShader);
+        
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         backpack.Draw(mainShader);
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 2.0f));
+        model = glm::scale(model, glm::vec3(20.0f));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        bunny.Draw(mainShader);
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(20.0f));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        plane.Draw(mainShader);
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(cos(glm::radians(210.0f))*6.0f, 2.0f, sin(glm::radians(210.0f))*6.0f));
+        model = glm::scale(model, glm::vec3(4.0f));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        tree.Draw(mainShader);
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(cos(glm::radians(30.0f))*6.0f, 2.0f, sin(glm::radians(30.0f))*6.0f));
+        model = glm::scale(model, glm::vec3(4.0f));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        tree.Draw(mainShader);
+        
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
