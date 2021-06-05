@@ -104,6 +104,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
     
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -156,6 +157,9 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         mainShader.use();
+        mainShader.setUniformVec4("material.diffuse", glm::vec4(1.0));
+        mainShader.setUniformVec4("material.specular", glm::vec4(1.0));
+        mainShader.setUniformFloat("material.shininess", 32.0f);
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         viewMatrix = camera.GetViewMatrix();
         glm::mat4 perspectiveMatrix = glm::mat4(1.0f);
@@ -205,6 +209,8 @@ int main() {
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         plane.Draw(mainShader);
         
+        glDisable(GL_CULL_FACE);
+        mainShader.setUniformVec4("material.specular", glm::vec4(0.0));
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(cos(glm::radians(210.0f))*6.0f, 2.0f, sin(glm::radians(210.0f))*6.0f));
         model = glm::scale(model, glm::vec3(4.0f));
@@ -216,6 +222,7 @@ int main() {
         model = glm::scale(model, glm::vec3(4.0f));
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         tree.Draw(mainShader);
+        glEnable(GL_CULL_FACE);
         
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
