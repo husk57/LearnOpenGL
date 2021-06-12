@@ -10,6 +10,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <model.hpp>
+#include <stb_image.h>
 
 int windowWidth = 800, windowHeight = 600;
 bool firstMouse = true;
@@ -17,6 +18,9 @@ bool camControlEnabled = false;
 float previousMouseX = windowWidth/2, previousMouseY = windowHeight/2;
 float deltaTime = 0.0f, lastFrame = 0.0f;
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+
+unsigned int framebuffer, renderbuffer, textureColorbuffer;
+
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -68,11 +72,8 @@ void mouse_button_callback(GLFWwindow* window,int button, int action, int mods) 
     }
 }
 
-void callResizeEvent(GLFWwindow* window, int width, int height) {
-    glViewport(0,0, width, height);
-    windowWidth = width;
-    windowHeight = height;
-}
+void callResizeEvent(GLFWwindow* window, int width, int height);
+unsigned int loadCubemap(std::vector<std::string> faces);
 
 int main() {
     glfwInit();
@@ -83,6 +84,7 @@ int main() {
      
     #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
     #endif
     
     
@@ -94,6 +96,7 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, callResizeEvent);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
     glfwSetCursorPosCallback(window, mouse_pos_callback);
     
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -121,21 +124,143 @@ int main() {
         glm::vec3( 0.0f,  0.0f, -3.0f)
     };
     
-    
+    //Shader definitions
     Shader mainShader("./Source/vertex.vert", "./Source/fragment.frag");
+    Shader postProcessQuad("./Source/postprocess.vert", "./Source/postprocess.frag");
+    Shader skyboxShader("./Source/skybox.vert", "./Source/skybox.frag");
     
+    //imgui variables
     float linearAtt = 0.09f;
     float quadraticAtt = 0.032f;
     float cutOff = 12.5f;
     float outerCutOff = 13.5f;
     
+    //model buffer loaders
     Model character("./Meshes/CoderHusk/robloxOriginal.obj", false);
     Model backpack("./Meshes/backpack/backpack.obj", true);
     Model bunny("./Meshes/stanford-bunny-obj/stanford-bunny.obj", true);
     Model plane("./Meshes/Plane/plane.obj", true);
     Model tree("./Meshes/Tree/tree.obj", false);
     
+    //post process framebufffer
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+    glGenTextures(1, &textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    
+    glGenRenderbuffers(1, &renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
+        };
+    // screen quad VAO
+        unsigned int quadVAO, quadVBO;
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    
+    postProcessQuad.use();
+    postProcessQuad.setUniformInt("screenTexture", 0);
+    
+    //Version Debug
+    std::cout << glGetString(GL_VERSION) << std::endl;
+    
+    //Skybox
+    
+    std::vector<std::string> faces {
+        "./Decals/skybox/right.jpg",
+        "./Decals/skybox/left.jpg",
+        "./Decals/skybox/top.jpg",
+        "./Decals/skybox/bottom.jpg",
+        "./Decals/skybox/front.jpg",
+        "./Decals/skybox/back.jpg"
+    };
+    
+    float skyboxVertices[] = {
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+            -1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f
+        };
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    
+    unsigned int cubemapTexture = loadCubemap(faces);
+    skyboxShader.use();
+    skyboxShader.setUniformInt("skybox", 0);
+    //Render Loop
     while (!glfwWindowShouldClose(window)) {
+        glfwGetFramebufferSize(window, &windowWidth,&windowHeight);
+        glViewport(0,0,windowWidth, windowHeight);
+        
         glfwPollEvents();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -153,17 +278,32 @@ int main() {
         lastFrame = currentFrame;
         processInput(window);
         
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        
+        glm::mat4 viewMatrix = glm::mat4(1.0f);
+        glm::mat4 perspectiveMatrix = glm::mat4(1.0f);
+        perspectiveMatrix = glm::perspective(glm::radians(45.0f), (float)(windowWidth)/(float)(windowHeight), 0.1f, 100.0f);
+        
+        glDepthMask(GL_FALSE);
+        skyboxShader.use();
+        viewMatrix = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        skyboxShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
+        skyboxShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
+        glBindVertexArray(skyboxVAO);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
         
         mainShader.use();
+        viewMatrix = glm::mat4(1.0f);
+        viewMatrix = camera.GetViewMatrix();
+        mainShader.setUniformVec3("direction_light", -glm::vec3(-.56, -.54, .62));
         mainShader.setUniformVec4("material.diffuse", glm::vec4(1.0));
         mainShader.setUniformVec4("material.specular", glm::vec4(1.0));
         mainShader.setUniformFloat("material.shininess", 32.0f);
-        glm::mat4 viewMatrix = glm::mat4(1.0f);
-        viewMatrix = camera.GetViewMatrix();
-        glm::mat4 perspectiveMatrix = glm::mat4(1.0f);
-        perspectiveMatrix = glm::perspective(glm::radians(45.0f), (float)(windowWidth)/(float)(windowHeight), 0.1f, 100.0f);
         mainShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
         mainShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
         
@@ -224,6 +364,18 @@ int main() {
         tree.Draw(mainShader);
         glEnable(GL_CULL_FACE);
         
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        postProcessQuad.use();
+        postProcessQuad.setUniformVec2("resolution", glm::vec2((float)windowWidth, (float)windowHeight));
+        postProcessQuad.setUniformFloat("time", glfwGetTime());
+        glBindVertexArray(quadVAO);
+        glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
@@ -233,4 +385,57 @@ int main() {
     ImGui::DestroyContext();
     glfwTerminate();
     return 0;
+}
+
+
+void callResizeEvent(GLFWwindow* window, int width, int height) {
+    glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++)
+    {
+        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
 }

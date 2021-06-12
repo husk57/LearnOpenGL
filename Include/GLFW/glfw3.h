@@ -245,7 +245,7 @@ extern "C" {
 #endif /* OpenGL and OpenGL ES headers */
 
 #if defined(GLFW_DLL) && defined(_GLFW_BUILD_DLL)
- /* GLFW_DLL must be defined by applications that are linking against the DLL
+/* GLFW_DLL must be defined by applicati&&ons that are linking against the DLL
   * version of the GLFW library.  _GLFW_BUILD_DLL is defined by the GLFW
   * configuration header when compiling the DLL version of the library.
   */

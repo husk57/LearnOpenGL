@@ -1,10 +1,12 @@
 
-#version 330 core
+#version 410 core
 out vec4 FragColor;
 
 in vec2 TexCoord;
 in vec3 fPosition;
 in vec3 fNormal;
+in vec3 testA;
+in vec3 testB;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_diffuse2;
@@ -38,6 +40,8 @@ struct SpotLight {
     float outerCutOff;
 };
 uniform SpotLight spotLight;
+
+uniform vec3 direction_light;
 
 vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 lightDir = normalize(light.position - fragPos);
@@ -79,6 +83,7 @@ vec4 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     return (ambient + diffuse + specular);
 }
 
+
 void main()
 {
     
@@ -88,5 +93,15 @@ void main()
         col += CalcPointLight(pointLights[i], fNormal, fPosition, viewDir);
     }
     col += CalcSpotLight(spotLight, fNormal, fPosition, viewDir);
+    
+    //directional light
+    vec4 ambient = texture(texture_diffuse1, TexCoord) * 0.2; //0.2 is ambient factor
+    float diff = max(dot(fNormal, direction_light), 0.0);
+    vec4 diffuse = diff * texture(texture_diffuse1, TexCoord);
+    col += (ambient+diffuse);
+    
+    if (texture(texture_diffuse1, TexCoord).a < 0.01) {
+        discard;
+    }
     FragColor = col;
 }

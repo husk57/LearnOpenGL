@@ -82,6 +82,11 @@
 		428180C026671350009EAD32 /* stanford-bunny-obj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "stanford-bunny-obj"; sourceTree = "<group>"; };
 		428180C3266AE107009EAD32 /* Plane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Plane; sourceTree = "<group>"; };
 		428180C4266AE3EA009EAD32 /* Tree */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tree; sourceTree = "<group>"; };
+		428180C526730421009EAD32 /* postprocess.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = postprocess.vert; sourceTree = "<group>"; };
+		428180C626730421009EAD32 /* postprocess.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = postprocess.frag; sourceTree = "<group>"; };
+		428180C926746074009EAD32 /* skybox */ = {isa = PBXFileReference; lastKnownFileType = folder; path = skybox; sourceTree = "<group>"; };
+		428180CA2674617A009EAD32 /* skybox.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = skybox.frag; sourceTree = "<group>"; };
+		428180CB2674617A009EAD32 /* skybox.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = skybox.vert; sourceTree = "<group>"; };
 		429DE3922655B8F100291935 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -106,6 +111,7 @@
 		42643F112648649F00AB698E = {
 			isa = PBXGroup;
 			children = (
+				428180C826746028009EAD32 /* Decals */,
 				428180A426642F0A009EAD32 /* Meshes */,
 				429DE3922655B8F100291935 /* LICENSE */,
 				42643F26264864B100AB698E /* Libraries */,
@@ -127,6 +133,10 @@
 		42643F1C2648649F00AB698E /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				428180CA2674617A009EAD32 /* skybox.frag */,
+				428180CB2674617A009EAD32 /* skybox.vert */,
+				428180C626730421009EAD32 /* postprocess.frag */,
+				428180C526730421009EAD32 /* postprocess.vert */,
 				42643F9C265479B300AB698E /* imgui_demo.cpp */,
 				42643F9A265479A400AB698E /* imgui.cpp */,
 				42643F982654799B00AB698E /* imgui_widgets.cpp */,
@@ -199,6 +209,14 @@
 				428180A526643317009EAD32 /* backpack */,
 			);
 			path = Meshes;
+			sourceTree = "<group>";
+		};
+		428180C826746028009EAD32 /* Decals */ = {
+			isa = PBXGroup;
+			children = (
+				428180C926746074009EAD32 /* skybox */,
+			);
+			path = Decals;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
