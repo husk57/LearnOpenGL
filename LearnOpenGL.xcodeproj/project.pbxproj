@@ -87,6 +87,7 @@
 		428180C926746074009EAD32 /* skybox */ = {isa = PBXFileReference; lastKnownFileType = folder; path = skybox; sourceTree = "<group>"; };
 		428180CA2674617A009EAD32 /* skybox.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = skybox.frag; sourceTree = "<group>"; };
 		428180CB2674617A009EAD32 /* skybox.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = skybox.vert; sourceTree = "<group>"; };
+		428180CC2674A63B009EAD32 /* Sphere */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Sphere; sourceTree = "<group>"; };
 		429DE3922655B8F100291935 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -202,6 +203,7 @@
 		428180A426642F0A009EAD32 /* Meshes */ = {
 			isa = PBXGroup;
 			children = (
+				428180CC2674A63B009EAD32 /* Sphere */,
 				428180C4266AE3EA009EAD32 /* Tree */,
 				428180C3266AE107009EAD32 /* Plane */,
 				428180C026671350009EAD32 /* stanford-bunny-obj */,

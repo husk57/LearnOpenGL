@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <shader.hpp>
+#include <stb_image.h>
 
 struct Vertex {
     glm::vec3 position;
@@ -32,8 +33,7 @@ public:
         
         setupMesh();
     };
-    void Draw(Shader &shader) {
-        // bind appropriate textures
+    void Draw(Shader &shader, unsigned int skybox) {
                 unsigned int diffuseNr  = 1;
                 unsigned int specularNr = 1;
                 for(unsigned int i = 0; i < textures.size(); i++)
@@ -48,13 +48,13 @@ public:
                     glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
                     glBindTexture(GL_TEXTURE_2D, textures[i].id);
                 }
-                
-                // draw mesh
                 glBindVertexArray(VAO);
+                glActiveTexture(GL_TEXTURE6);
+                glUniform1i(glGetUniformLocation(shader.ID, "skybox"), 6);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
                 glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
                 glBindVertexArray(0);
 
-                // always good practice to set everything back to defaults once configured.
                 glActiveTexture(GL_TEXTURE0);
     };
 private:

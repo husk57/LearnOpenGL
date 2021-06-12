@@ -15,18 +15,20 @@ class Model
     std::vector<Tex> textures_loaded;
     std::string directory;
     bool isFlip;
+    unsigned int skybox;
     public:
-        Model(const char *path, bool state)
+        Model(const char *path, bool state, unsigned int cubemap)
         {
             this->isFlip = state;
+            this->skybox = cubemap;
             loadModel(path);
-            
+            std::cout << "LOADED: " << path << std::endl;
         }
         
         void Draw(Shader &shader)
         {
             for(unsigned int i = 0; i < meshes.size(); i++) {
-                meshes[i].Draw(shader);
+                meshes[i].Draw(shader, this->skybox);
             }
         }
     private:
@@ -144,7 +146,6 @@ unsigned int TextureFromFile(const char *path, const std::string &directory, boo
 
     int width, height, nrComponents;
     stbi_set_flip_vertically_on_load(state);
-    std::cout << state << ", " << filename << std::endl;
     unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {

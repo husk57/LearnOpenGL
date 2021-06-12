@@ -11,6 +11,7 @@
 #include <imgui_impl_opengl3.h>
 #include <model.hpp>
 #include <stb_image.h>
+#include <mesh.hpp>
 
 int windowWidth = 800, windowHeight = 600;
 bool firstMouse = true;
@@ -18,7 +19,6 @@ bool camControlEnabled = false;
 float previousMouseX = windowWidth/2, previousMouseY = windowHeight/2;
 float deltaTime = 0.0f, lastFrame = 0.0f;
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
-
 unsigned int framebuffer, renderbuffer, textureColorbuffer;
 
 void processInput(GLFWwindow* window) {
@@ -134,13 +134,7 @@ int main() {
     float quadraticAtt = 0.032f;
     float cutOff = 12.5f;
     float outerCutOff = 13.5f;
-    
-    //model buffer loaders
-    Model character("./Meshes/CoderHusk/robloxOriginal.obj", false);
-    Model backpack("./Meshes/backpack/backpack.obj", true);
-    Model bunny("./Meshes/stanford-bunny-obj/stanford-bunny.obj", true);
-    Model plane("./Meshes/Plane/plane.obj", true);
-    Model tree("./Meshes/Tree/tree.obj", false);
+    float sunColor[] = {1.0, 1.0, 1.0};
     
     //post process framebufffer
     glGenFramebuffers(1, &framebuffer);
@@ -191,15 +185,6 @@ int main() {
     std::cout << glGetString(GL_VERSION) << std::endl;
     
     //Skybox
-    
-    std::vector<std::string> faces {
-        "./Decals/skybox/right.jpg",
-        "./Decals/skybox/left.jpg",
-        "./Decals/skybox/top.jpg",
-        "./Decals/skybox/bottom.jpg",
-        "./Decals/skybox/front.jpg",
-        "./Decals/skybox/back.jpg"
-    };
     
     float skyboxVertices[] = {
             -1.0f,  1.0f, -1.0f,
@@ -253,9 +238,29 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     
+    std::vector<std::string> faces {
+        "./Decals/skybox/right.jpg",
+        "./Decals/skybox/left.jpg",
+        "./Decals/skybox/top.jpg",
+        "./Decals/skybox/bottom.jpg",
+        "./Decals/skybox/front.jpg",
+        "./Decals/skybox/back.jpg"
+    };
+    
     unsigned int cubemapTexture = loadCubemap(faces);
     skyboxShader.use();
-    skyboxShader.setUniformInt("skybox", 0);
+    skyboxShader.setUniformInt("skybox", 6);
+    mainShader.use();
+    mainShader.setUniformInt("skybox", 6);
+    
+    //model buffer loaders
+    Model character("./Meshes/CoderHusk/robloxOriginal.obj", false, cubemapTexture);
+    Model backpack("./Meshes/backpack/backpack.obj", true, cubemapTexture);
+    Model bunny("./Meshes/stanford-bunny-obj/stanford-bunny.obj", true, cubemapTexture);
+    Model plane("./Meshes/Plane/plane.obj", true, cubemapTexture);
+    Model tree("./Meshes/Tree/tree.obj", false, cubemapTexture);
+    Model sphere("./Meshes/Sphere/sphere.obj", true, cubemapTexture);
+    
     //Render Loop
     while (!glfwWindowShouldClose(window)) {
         glfwGetFramebufferSize(window, &windowWidth,&windowHeight);
@@ -272,6 +277,7 @@ int main() {
         ImGui::SliderFloat("Quadratic Attenuation", &quadraticAtt, 0.0f, 0.1f);
         ImGui::SliderFloat("Cut off", &cutOff, 0.0f, 180.0f);
         ImGui::SliderFloat("Outer off", &outerCutOff, 0.0f, 180.0f);
+        ImGui::ColorEdit3("Sun Color", sunColor);
         
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -306,6 +312,7 @@ int main() {
         mainShader.setUniformFloat("material.shininess", 32.0f);
         mainShader.setUniformMat4("viewMatrix", glm::value_ptr(viewMatrix));
         mainShader.setUniformMat4("perspectiveMatrix", glm::value_ptr(perspectiveMatrix));
+        mainShader.setUniformVec3("sunColor", glm::vec3(sunColor[0], sunColor[1], sunColor[2]));
         
         mainShader.setUniformVec3("cameraPosition", camera.position);
         
@@ -324,6 +331,8 @@ int main() {
         
         mainShader.setUniformFloat("time", (float)glfwGetTime());
         
+        mainShader.setUniformFloat("material.reflectiveness", 0.0);
+        mainShader.setUniformFloat("material.refractiveness", 0.0);
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -337,12 +346,22 @@ int main() {
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         backpack.Draw(mainShader);
         
+        mainShader.setUniformFloat("material.reflectiveness", 1.0);
+        mainShader.setUniformFloat("material.refractiveness", 1.3);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 2.0f));
         model = glm::scale(model, glm::vec3(20.0f));
         mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
         bunny.Draw(mainShader);
         
+        mainShader.setUniformFloat("material.refractiveness", 0.0);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-7.0f, -1.0f, 7.0f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        mainShader.setUniformMat4("modelMatrix", glm::value_ptr(model));
+        sphere.Draw(mainShader);
+        
+        mainShader.setUniformFloat("material.reflectiveness", 0.0);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
         model = glm::scale(model, glm::vec3(20.0f));

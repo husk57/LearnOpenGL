@@ -1,12 +1,9 @@
-
 #version 410 core
 out vec4 FragColor;
 
 in vec2 TexCoord;
 in vec3 fPosition;
 in vec3 fNormal;
-in vec3 testA;
-in vec3 testB;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_diffuse2;
@@ -14,13 +11,18 @@ uniform sampler2D texture_diffuse3;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_specular2;
 
+uniform samplerCube skybox;
+
 uniform vec3 cameraPosition;
+uniform vec3 sunColor;
 
 const int nrPointLights = 4;
 struct Material {
     vec4 diffuse;
     vec4 specular;
     float shininess;
+    float reflectiveness;
+    float refractiveness;
 };
 uniform Material material;
 
@@ -98,9 +100,12 @@ void main()
     vec4 ambient = texture(texture_diffuse1, TexCoord) * 0.2; //0.2 is ambient factor
     float diff = max(dot(fNormal, direction_light), 0.0);
     vec4 diffuse = diff * texture(texture_diffuse1, TexCoord);
-    col += (ambient+diffuse);
+    col += vec4((ambient+diffuse).rgb*sunColor, 1.0);
     
-    if (texture(texture_diffuse1, TexCoord).a < 0.01) {
+    vec3 primaryRayDir = normalize(fPosition - cameraPosition);
+    col += texture(skybox, reflect(primaryRayDir, normalize(fNormal))) * material.reflectiveness;
+    col *= texture(skybox, refract(primaryRayDir, normalize(fNormal), 1.0/material.refractiveness));
+    if (texture(texture_diffuse1, TexCoord).a < 0.000001) {
         discard;
     }
     FragColor = col;
